@@ -526,7 +526,6 @@ function _positionWindows(flags, overlayWindowsToPositionShowing, overlayWindows
 
 	if(this._leavingOneApplicationMode)
 	{
-		global.log("Leaving one applciation mode");
 		if(this._timeOutShowOneWindowAppId>0)
 		{
 			Mainloop.source_remove(this._timeOutShowOneWindowAppId);
@@ -541,7 +540,6 @@ function _positionWindows(flags, overlayWindowsToPositionShowing, overlayWindows
 		this._leavingOneApplicationMode=false;
 		this._showingOneApplicationOverlayWindows=[];
 		this._currentHoverAppItem=undefined;
-		global.log("Fisnih leaving one applciation mode");
 	}
 }
 
@@ -606,7 +604,7 @@ function dragEnd()
 let dashInjections;
 let workspaceInjections;
 let winOverlayInjections;
-
+let signalId;
 function injectToFunction(parent, name, func)
 {
 	let origin = parent[name];
@@ -634,6 +632,7 @@ function resetState()
 	dashInjections={};
 	workspaceInjections={};
 	winOverlayInjections={};
+	signalId=undefined;
 }
 
 function init()
@@ -664,7 +663,7 @@ function enable()
 	workspaceInjections['_animateClone'] = Workspace.Workspace.prototype['_animateClone'];
 	Workspace.Workspace.prototype['_animateClone'] = _animateClone;
 
-	Main.overview.connect('window-drag-end', dragEnd);
+	signalId=Main.overview.connect('window-drag-end', dragEnd);
 }
 
 function disable()
@@ -682,8 +681,7 @@ function disable()
 		removeInjection(Dash.Dash.prototype, dashInjections, i);
 	}
 
-	//Main.overview.disconnect('window-drag-end', dragEnd);
+	Main.overview.disconnect(signalId);
 
 	resetState();
-
 }
